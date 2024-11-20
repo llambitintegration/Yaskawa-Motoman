@@ -1,0 +1,29 @@
+/JOB
+//NAME R1_CLEARMODULE
+//POS
+///NPOS 0,0,0,0,0,0
+//ARGINFO
+///ARGTYPE I,,,,,,,
+///COMMENT
+Module Bit Num
+
+
+
+
+
+
+
+//INST
+///DATE 2021/11/29 15:00
+///ATTR SC,RW
+///GROUP1 RB1
+///LVARS 5,5,5,0,0,0,0,0
+NOP
+'Get Input Module Number
+GETARG LI000 IARG#(1)
+'Reset Module Clear Status Bits
+DOUT OG#(30) 255
+DOUT OG#(31) 255
+'Set Module Not Clear Bit
+DOUT OT#(LI000) OFF
+END

@@ -1,0 +1,104 @@
+/JOB
+//NAME R1_TOOLPLACE_BLK
+//POS
+///NPOS 8,0,0,0,0,0
+///USER 6
+///TOOL 1
+///POSTYPE USER
+///RECTAN
+///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+C00000=-462.307,359.772,-11.794,151.1503,24.4097,109.1588
+C00001=-117.584,293.603,222.302,-178.4034,-10.2019,35.3463
+C00002=290.924,-17.724,248.460,180.0000,-12.6088,0.0072
+C00003=363.196,-14.937,-69.786,-179.9181,-0.5882,0.0737
+C00004=363.182,-14.909,-166.199,-179.9215,-0.5851,0.0793
+///TOOL 0
+C00005=-116.013,-16.006,148.496,174.5113,-30.1327,11.0468
+C00006=-187.058,-17.811,267.825,174.5564,-29.5484,10.9403
+C00007=-510.855,5.481,407.987,174.0581,-39.8640,46.7104
+//INST
+///DATE 2022/08/19 09:19
+///ATTR SC,RW,RJ
+////FRAME USER 6
+///GROUP1 RB1
+///LVARS 0,0,0,0,0,0,0,0
+NOP
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' R1_TOOLPlace_Blk
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' 
+*TOP
+'***********INITIALIZE***********
+' Set Clear of Module Bits
+CALL JOB:R1_CLEARMODULE ARGF242
+' Report Position
+CALL JOB:R1_REPORTPOS ARGF10
+'Request Enter
+CALL JOB:R1_REQUESTENTER
+'Tool Check
+CALL JOB:R1_TOOLCHECK ARGFI011 ARGF0 ARGF1000
+'********************************
+' 
+'********PRE-STATUS_CHECK********
+'********************************
+' 
+'***********PRIME_MOVE***********
+'********************************
+IFTHENEXP B005=0
+	 MOVJ P[106] VJ=25.00
+ENDIF
+' 
+'*******POST-STATUS_CHECK********
+'********************************
+' 
+'****USER_DEFINED_PARAMETERS*****
+'********************************
+' 
+'********DATA_VALIDATION*********
+'********************************
+' 
+'*************SETUP**************
+'********************************
+' 
+'*************ACTION*************
+'********************************
+MOVJ C00000 VJ=50.00 PL=2
+MOVJ C00001 VJ=50.00 PL=2
+MOVJ C00002 VJ=50.00 PL=2
+MOVJ C00003 VJ=25.00 PL=2
+'Set Shock Sensitivity
+SHCKSET RB1 SSL#(2)
+' place gripper on stand
+MOVL C00004 V=250.0 PL=0
+' unlock gripper from ATI
+CALL JOB:R1_TCDETACHTOOL
+'Set Tool Number
+CALL JOB:R1_DATAXFEROUT ARGF0 ARGF44 ARGF45
+' move away from unlocked tool
+MOVL C00005 V=250.0 PL=0
+'Reset Shock Sensitivity
+SHCKRST RB1
+MOVJ C00006 VJ=50.00 PL=2
+' 
+IFTHENEXP IN#(211)=ON
+	' remain at tool change stand if
+	'  OK to pick signal for another
+	'  tool is on.
+	'
+	' set at tool change stand bit
+	 MOVJ P[107] VJ=50.00
+	 SET B005 1
+ELSE
+	' if no tool pick signal is ON:
+	'  then return to pounce position
+	 MOVJ C00007 VJ=10.00 PL=2
+	 MOVJ P[106] VJ=50.00 PL=2
+	' reset at tool change stand bit
+	 SET B005 0
+ENDIF
+'*********HOUSE_KEEPING**********
+DOUT OT#(242) ON
+SET B004 1
+'********************************
+*OUT
+END

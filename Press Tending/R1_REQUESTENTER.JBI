@@ -1,0 +1,17 @@
+/JOB
+//NAME R1_REQUESTENTER
+//POS
+///NPOS 0,0,0,0,0,0
+//INST
+///DATE 2021/12/06 08:02
+///ATTR SC,RW
+///GROUP1 RB1
+NOP
+'Request to Enter On
+DOUT OT#(225) ON
+'Wait for PLC Acknowledge
+WAIT IN#(212)=ON
+'Request to Enter Off
+TIMER T=0.10
+DOUT OT#(225) OFF
+END

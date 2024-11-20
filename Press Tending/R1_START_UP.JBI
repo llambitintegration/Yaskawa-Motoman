@@ -1,0 +1,53 @@
+/JOB
+//NAME R1_START_UP
+//POS
+///NPOS 0,0,0,0,0,0
+//INST
+///DATE 2022/02/25 13:51
+///ATTR SC,RW
+///GROUP1 RB1
+///LVARS 2,0,0,0,0,0,0,0
+NOP
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' set-up i/o and variables
+' for start-up
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' 
+*TOP
+'***********INITIALIZE***********
+SETTM TM000 TSTOP
+SETTM TM001 TSTOP
+SETTM TM002 TSTOP
+SETTM TM000 TRESET
+SETTM TM001 TRESET
+SETTM TM002 TRESET
+MSG ""
+SHCKRST
+SFTOF
+'********************************
+' 
+'****USER DEFINED PARAMETERS*****
+'********************************
+' 
+'********DATA VALIDATION*********
+'********************************
+' 
+'*************SETUP**************
+'********************************
+' 
+'*************ACTION*************
+WHILEEXP IN#(210)=OFF
+	 MSG "Close robot safety circuit!"
+ENDWHILE
+DOUT OT#(222) ON
+DOUT OT#(223) OFF
+DOUT OT#(224) OFF
+'********************************
+' 
+'*********HOUSE KEEPING**********
+' setup i/o
+' 
+' at home for shutdown
+'********************************
+*OUT
+END

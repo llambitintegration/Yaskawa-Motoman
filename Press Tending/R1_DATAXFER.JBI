@@ -1,0 +1,385 @@
+/JOB
+//NAME R1_DATAXFER
+//POS
+///NPOS 0,0,0,0,0,0
+//INST
+///DATE 2022/08/17 16:22
+///ATTR SC,RW
+///GROUP1 RB1
+///LVARS 5,50,10,0,0,0,0,0
+NOP
+'_____I/O List_____
+'28	Program Number B0
+'29	Program Number B8
+'30	Type: Tool B0
+'31	Type: Tool B8
+'32	Type: Part B0
+'33	Type: Part B8
+'34	Type: Tray B0
+'35	Type: Tray B8
+'36	Index: Infeed Tray B0
+'37	Index: Infeed Tray B8
+'38	Index: Master Tray B0
+'39	Index: Master Tray B8
+'40	Index: Master Block B0
+'41	Index: Master Block B8
+'42	Idx: Master Block Array X B0
+'43	Idx: Master Block Array X B8
+'44	Idx: Master Block Array Y B0
+'45	Idx: Master Block Array Y B8
+'46	Scissor Pos: MTS_Scissor B0
+'47	Scissor Pos: MTS_Scissor B1
+'48	Scissor Pos: MTS_Scissor B2
+'49	Scissor Pos: MTS_Scissor B3
+'50	Scissor Pos: INF_Scissor B0
+'51	Scissor Pos: INF_Scissor B1
+'52	Scissor Pos: INF_Scissor B2
+'53	Scissor Pos: INF_Scissor B3
+'56	Keyence: Laser Readout B0
+'57	Keyence: Laser Readout B1
+'58	Keyence: Laser Readout B2
+'59	Keyence: Laser Readout B3
+'78 Infeed Tray Height, B0
+'79 Infeed Tray Height, B1
+'80 Infeed Tray Height, B2
+'81 Infeed Tray Height, B3
+'_____Input B Variable List____
+'10	ProgNum_B0
+'11	ProgNum_B1
+'12	Type_Tool_B0
+'13	Type_Tool_B1
+'14	Type_Part_B0
+'15	Type_Part_B1
+'16	Type_Tray_B0
+'17	Type_Tray_B1
+'18	Idx_INF_Tray_B0
+'19	Idx_INF_Tray_B1
+'20	Idx_MST_Tray_B0
+'21	Idx_MST_Tray_B1
+'22	Idx_MST_Blk_B0
+'23	Idx_MST_Blk_B1
+'24	Idx_MST_BlkAX_B0
+'25	Idx_MST_BlkAX_B1
+'26	Idx_MST_BlkAY_B0
+'27	Idx_MST_BlkAY_B1
+'28	SzrPos_MST_B0
+'29	SzrPos_MST_B1
+'30	SzrPos_MST_B2
+'31	SzrPos_MST_B3
+'32	SzrPos_INF_B0
+'33	SzrPos_INF_B1
+'34	SzrPos_INF_B2
+'35	SzrPos_INF_B3
+'36	LzrGage_Rdout_B0
+'37	LzrGage_Rdout_B1
+'38	LzrGage_Rdout_B2
+'39	LzrGage_Rdout_B3
+'46 INFLayer_B0
+'47 INFLayer_B1
+'48 MSTLayer_B0
+'49 MSTLayer_B1
+'50 MSTBlkLayer_B0
+'51 MSTBlkLayer_B1
+'68 INFTrayHB0
+'69 INFTrayHB1
+'70 INFTrayHB2
+'71 INFTrayHB3
+'72 INFTrayHB0
+'73 INFTrayLB1
+'74 INFTrayLB2
+'75 INFTrayLB3
+'76 INFTrayLB0
+'77 INFTrayWB1
+'78 INFTrayWB2
+'79 INFTrayWB3
+'80 INFTrayWB0
+'81 INFLidHB1
+'82 INFLidHB2
+'83 INFLidHB3
+'_____Output_____
+'32 ProgramEcho
+'34 CurrentPos
+'36 CurrentTool
+'_____Out B Variable List____
+'40	ProgramEcho_B0
+'41	ProgramEcho_B1
+'42	CurrentPos_B0
+'43	CurrentPos_B1
+'44	CurrentTool_B0
+'45	CurrentTool_B1
+'Request Transfer
+SET LI040 0
+SET LB000 1
+WHILE LI040<=2 ANDIF LB000=1
+	 SET LB000 0
+	 SET LB001 0
+	 DOUT OT#(226) ON
+	 WAIT IN#(213)=ON
+	 DOUT OT#(226) OFF
+	'Set Input Register Locations
+	 SET LI003 10
+	 SET LI004 36
+	 SET LI010 46
+	 SET LI011 68
+	 SET LI005 28
+	 SET LI006 56
+	 SET LI012 64
+	 SET LI013 74
+	 SET LI014 68
+	 SET LI015 78
+	'~~~Set Bug Catch
+	'B Vars IN
+	'(10-35,
+	'46-51,
+	'64-83)
+	 SET LI016 10
+	 SET LI017 35
+	 SET LI018 46
+	 SET LI019 51
+	 SET LI020 64
+	 SET LI021 83
+	'B Vars OUT
+	'(40-45,
+	'52-63)
+	 SET LI028 40
+	 SET LI029 45
+	 SET LI030 52
+	 SET LI031 63
+	'DIN
+	'(28-53
+	'68-73
+	'74-93)
+	 SET LI022 28
+	 SET LI023 53
+	 SET LI024 68
+	 SET LI025 73
+	 SET LI026 74
+	 SET LI027 93
+	'DOUT
+	'(32-37
+	'50-61)
+	 SET LI032 32
+	 SET LI033 37
+	 SET LI034 50
+	 SET LI035 61
+	'Digital In Loop, Integers
+	 FOR I000 START= 0 TO 25
+		'B Variable Set
+		 SET LI000  EXPRESS LI003 + I000
+		'DIn Set
+		 SET LI001  EXPRESS LI005 + I000
+		'Din to B Var Map
+		 DIN B[LI000] IG#(LI001)
+	 NEXT I000
+	'Digital In Loop, Keyence
+	 FOR I000 START= 0 TO 3
+		'B Variable Set
+		 SET LI000  EXPRESS LI004 + I000
+		'DIn Set
+		 SET LI001  EXPRESS LI006 + I000
+		'Din to B Var Map
+		 DIN B[LI000] IG#(LI001)
+	 NEXT I000
+	'Digital In Loop, Layers
+	 FOR I000 START= 0 TO 5
+		'B Variable Set
+		 SET LI000  EXPRESS LI010 + I000
+		'DIn Set
+		 SET LI001  EXPRESS LI011 + I000
+		'Din to B Var Map
+		 DIN B[LI000] IG#(LI001)
+	 NEXT I000
+	'Digital In Loop, Blocks
+	 FOR I000 START= 0 TO 3
+		'B Variable Set
+		 SET LI000  EXPRESS LI012 + I000
+		'DIn Set
+		 SET LI001  EXPRESS LI013 + I000
+		'Din to B Var Map
+		 DIN B[LI000] IG#(LI001)
+	 NEXT I000
+	' Input Loop: Tray/Lid Dims
+	 FOR I000 START= 0 TO 15
+		'B Variable Set
+		 SET LI000  EXPRESS LI014 + I000
+		'DIn Set
+		 SET LI001  EXPRESS LI015 + I000
+		'Din to B Var Map
+		 DIN B[LI000] IG#(LI001)
+	 NEXT I000
+	'__Create Integer Inputs__
+	'Program Number
+	 SET I010  EXPRESS B011 + B010 * 256
+	'Tool Number
+	 SET I011  EXPRESS B013 + B012 * 256
+	'Part Number
+	 SET I012  EXPRESS B015 + B014 * 256
+	'Tray Number
+	 SET I013  EXPRESS B017 + B016 * 256
+	'Index: INF Tray
+	 SET I014  EXPRESS B019 + B018 * 256
+	'Index: MST Tray
+	 SET I015  EXPRESS B021 + B020 * 256
+	'Index: MST Block
+	 SET I016  EXPRESS B023 + B022 * 256
+	'Index: MST Block Array X
+	 SET I017  EXPRESS B025 + B024 * 256
+	'Index: MST Block Array Y
+	 SET I018  EXPRESS B027 + B026 * 256
+	'Offset: INF Layer
+	 SET I026  EXPRESS B047 + B046 * 256
+	'Offset: MST Layer
+	 SET I027  EXPRESS B049 + B048 * 256
+	'Offset: MST Layer, Block
+	 SET I028  EXPRESS B051 + B050 * 256
+	'Count: MST Block X
+	 SET I029  EXPRESS B065 + B064 * 256
+	'Count: MST Block Y
+	 SET I030  EXPRESS B067 + B066 * 256
+	'__Create Double Inputs__
+	'Scissor Position: MST
+	 SET D010  EXPRESS B031 + B030 * 256 + B029 * 65536 + B028 * 16777216
+	'Scissor Position: INF
+	 SET D011  EXPRESS B035 + B034 * 256 + B033 * 65536 + B032 * 16777216
+	'Keyence Laser Gauge Readout
+	 SET D012  EXPRESS B039 + B038 * 256 + B037 * 65536 + B036 * 16777216
+	'INF Tray Height
+	 SET D016  EXPRESS B071 + B070 * 256 + B069 * 65536 + B068 * 16777216
+	'INF Tray Length
+	 SET D017  EXPRESS B075 + B074 * 256 + B073 * 65536 + B072 * 16777216
+	'INF Tray Width
+	 SET D018  EXPRESS B079 + B078 * 256 + B077 * 65536 + B076 * 16777216
+	'INF Lid Height
+	 SET D019  EXPRESS B083 + B082 * 256 + B081 * 65536 + B080 * 16777216
+	'~~~~~~OUTPUTS~~~~~~
+	'Match Prgm Echo to Prgm Input
+	 SET B040 B010
+	 SET B041 B011
+	'Set Output Register Locations
+	 SET LI007 32
+	 SET LI008 40
+	 SET LI009 50
+	 SET LI010 52
+	'Digital Out Loop, Integers
+	 FOR I000 START= 0 TO 9
+		'B Variable Set
+		 SET LI000  EXPRESS LI008 + I000
+		'DOut Set
+		 SET LI001  EXPRESS LI007 + I000
+		'Dout to B Var Map
+		 DOUT OG#(LI001) B[LI000]
+	 NEXT I000
+	'Digital out Loop, Doubles
+	 FOR I000 START= 0 TO 11
+		'B Variable Set
+		 SET LI000  EXPRESS LI010 + I000
+		'DOut Set
+		 SET LI001  EXPRESS LI009 + I000
+		'Dout to B Var Map
+		 DOUT OG#(LI001) B[LI000]
+	 NEXT I000
+	'Create Integer OUTPUTS~~~~~~~~
+	'Program Echo
+	 SET I020  EXPRESS B041 + B040 * 256
+	'Current Position
+	 SET I021  EXPRESS B043 + B042 * 256
+	'Program Echo
+	 SET I022  EXPRESS B045 + B044 * 256
+	'~~~Bug Catch
+	'~DIN
+	'DIN1
+	 FOR I000 START= 0 TO 25
+		'B Var Set
+		 SET LI000  EXPRESS LI016 + I000
+		'DIN Set
+		 SET LI001  EXPRESS LI022 + I000
+		 IFTHENEXP IG#(LI001)<>B[LI000]
+			 IFTHENEXP LI000=31 OREXP LI000=35
+				'DO NOTHING
+			 ELSE
+				 SET LB000 1
+			 ENDIF
+		 ENDIF
+	 NEXT I000
+	'First bit
+	 IFTHENEXP LB000=1
+		 SET LB001  EXPRESS LB001 + 1
+		 SET LB000 0
+	 ENDIF
+	'DIN2
+	 FOR I000 START= 0 TO 5
+		'B Var Set
+		 SET LI000  EXPRESS LI018 + I000
+		'DIN Set
+		 SET LI001  EXPRESS LI024 + I000
+		 IFTHENEXP IG#(LI001)<>B[LI000]
+			 SET LB000 1
+		 ENDIF
+	 NEXT I000
+	'Second bit
+	 IFTHENEXP LB000=1
+		 SET LB001  EXPRESS LB001 + 2
+		 SET LB000 0
+	 ENDIF
+	'DIN3
+	 FOR I000 START= 0 TO 19
+		'B Var Set
+		 SET LI000  EXPRESS LI020 + I000
+		'DIN Set
+		 SET LI001  EXPRESS LI026 + I000
+		 IFTHENEXP IG#(LI001)<>B[LI000]
+			 SET LB000 1
+		 ENDIF
+	 NEXT I000
+	'Third bit
+	 IFTHENEXP LB000=1
+		 SET LB001  EXPRESS LB001 + 4
+		 SET LB000 0
+	 ENDIF
+	'~DOUT
+	'DOUT1
+	 FOR I000 START= 0 TO 5
+		'B Var Set
+		 SET LI000  EXPRESS LI028 + I000
+		'DOUT Set
+		 SET LI001  EXPRESS LI032 + I000
+		 DIN LB002 OG#(LI001)
+		 IFTHENEXP LB002<>B[LI000]
+			 SET LB000 1
+		 ENDIF
+	 NEXT I000
+	'Fourth Bit
+	 IFTHENEXP LB000=1
+		 SET LB001  EXPRESS LB001 + 8
+		 SET LB000 0
+	 ENDIF
+	'DOUT2
+	 FOR I000 START= 0 TO 11
+		'B Var Set
+		 SET LI000  EXPRESS LI030 + I000
+		'DOUT Set
+		 SET LI001  EXPRESS LI034 + I000
+		 DIN LB002 OG#(LI001)
+		 IFTHENEXP LB002<>B[LI000]
+			 SET LB000 1
+		 ENDIF
+	 NEXT I000
+	'Fifth Bit
+	 IFTHENEXP LB000=1
+		 SET LB001  EXPRESS LB001 + 16
+		 SET LB000 0
+	 ENDIF
+	'Loop on fail
+	 IFTHENEXP LB001>0
+		 SET B100 LB001
+		 SET LB000 1
+		 SET LI040  EXPRESS LI040 + 1
+		 TIMER T=1.00
+	 ENDIF
+	'Stop after 3 iter.
+	 IFTHENEXP LI040=2
+		 SETUALM 8000 "Data transfer error!" 0 SMODE=2
+		 PAUSE
+	 ENDIF
+ENDWHILE
+END

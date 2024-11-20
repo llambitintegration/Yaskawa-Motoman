@@ -1,0 +1,162 @@
+/JOB
+//NAME R1_MASTER
+//POS
+///NPOS 0,0,0,0,0,0
+//INST
+///DATE 2022/09/29 11:50
+///COMM Main Control Job
+///ATTR SC,RW
+///LVARS 2,0,0,0,0,0,0,0
+NOP
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'%            MASTER            %
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' 
+*TOP
+'***********INITIALIZE***********
+CLEAR STACK
+TIMER T=0.10
+'********************************
+' 
+'**********CHECK STATUS**********
+'********************************
+' 
+'*************SETUP**************
+' run startup checks and
+'   initialize varibles and i/o
+CALL JOB:R1_HOME_CHECK
+CALL JOB:R1_START_UP
+'********************************
+' 
+'*************ACTION*************
+' prime action loop
+SET LB000 0
+' pounce overrides
+SET B009 0
+SET B008 0
+' action loop
+WHILEEXP LB000=0
+	'Wait for Program Execute
+	 WAIT IN#(209)=ON
+	'Robot is Busy
+	 DOUT OT#(222) OFF
+	 DOUT OT#(223) ON
+	'Job Case
+	 SWITCH I010 CASE 90
+		'job home
+		 CALL JOB:R1_GOHOME
+	 CASE 20
+		'job EMG Pounce
+		 CALL JOB:R1_EMGPOUNCE
+	 CASE 22
+		'job EMG Pick
+		 CALL JOB:R1_EMGPICK
+	 CASE 30
+		'job ISO Pounce
+		 CALL JOB:R1_ISOPOUNCE
+	 CASE 32
+		'job ISO Pick
+		 CALL JOB:R1_ISOPICK
+	 CASE 34
+		'job ISO Place
+		 CALL JOB:R1_ISOPLACE
+	 CASE 40
+		'job WGH Pounce
+		 CALL JOB:R1_WGHPOUNCE
+	 CASE 42
+		'job WGH Pick
+		 CALL JOB:R1_WGHPICK_BLK
+	 CASE 44
+		'job WGH Place
+		 CALL JOB:R1_WGHPLACE_BLK
+	 CASE 50
+		'job MST Pounce
+		 CALL JOB:R1_MSTPOUNCE_BLK
+	 CASE 54
+		'job MST Place Block
+		 CALL JOB:R1_MSTPLACE_BLK
+	 CASE 60
+		'job INF Pounce
+		 CALL JOB:R1_INFPOUNCE
+	 CASE 62
+		'job INF Pick Tray
+		 CALL JOB:R1_INFPICK_TRAY
+	 CASE 63
+		'job INF Pick Lid
+		 CALL JOB:R1_INFPICK_LID
+	 CASE 80
+		'job MST Pounce Tray
+		 CALL JOB:R1_MSTPOUNCE_LT
+	 CASE 84
+		'job MST Place Tray
+		 CALL JOB:R1_MSTPLACE_TRAY
+	 CASE 85
+		'job MST Place Lid
+		 CALL JOB:R1_MSTPLACE_LID
+	 CASE 88
+		'job Alumina Dispense
+		 CALL JOB:R1_ALUDISPENSE
+	 CASE 100
+		'job TOOL Pounce Servo Tool
+		 CALL JOB:R1_TOOLPOUNCE_BLK
+	 CASE 102
+		'job TOOL Pick Servo Tool
+		 CALL JOB:R1_TOOLPICK_BLK
+	 CASE 104
+		'job TOOL Place Servo Tool
+		 CALL JOB:R1_TOOLPLACE_BLK
+	 CASE 110
+		'job TOOL Pounce Vacuum Tool
+		 CALL JOB:R1_TOOLPOUNCE_LT
+	 CASE 112
+		'job TOOL Pick Vacuum Tool
+		 CALL JOB:R1_TOOLPICK_LT
+	 CASE 114
+		'job TOOL Place Vacuum Tool
+		 CALL JOB:R1_TOOLPLACE_LT
+	 CASE 120
+		'job TOOL Pounce Alu
+		 CALL JOB:R1_TOOLPOUNCE_ALU
+	 CASE 122
+		'job TOOL Pick Alu
+		 CALL JOB:R1_TOOLPICK_ALU
+	 CASE 124
+		'job TOOL Place Alu
+		 CALL JOB:R1_TOOLPLACE_ALU
+	 CASE 131
+		'job ALN Place Tray
+		 CALL JOB:R1_ALNPLACE_TRAY
+	 CASE 132
+		'job ALN Pick Tray
+		 CALL JOB:R1_ALNPICK_TRAY
+	 CASE 141
+		'job ALN Place Lid
+		 CALL JOB:R1_ALNPLACE_TRAY
+	 CASE 142
+		'job ALN Pick Lid
+		 CALL JOB:R1_ALNPICK_TRAY
+	 CASE 0
+		'DO NOTHING
+	 DEFAULT
+		'default case
+		 SETUALM 8001 "Program Select Failed!" 1 SMODE=0
+		 SET LB001 0
+		 WHILE LB001=0
+		 ENDWHILE
+	 ENDSWITCH
+	'job
+	'********************************
+	'
+	'*********HOUSE KEEPING**********
+	 IFTHENEXP B004=1
+		 CALL JOB:R1_HOUSEKEEPING
+		 SET B004 0
+	 ENDIF
+	' get return value
+	 GETS LB000 $RV
+ENDWHILE
+'********************************
+' restart
+JUMP *TOP
+*OUT
+END

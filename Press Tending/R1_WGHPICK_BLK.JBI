@@ -1,0 +1,97 @@
+/JOB
+//NAME R1_WGHPICK_BLK
+//POS
+///NPOS 7,0,0,0,0,0
+///USER 3
+///TOOL 1
+///POSTYPE USER
+///RECTAN
+///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+C00000=49.985,299.057,565.999,-89.8831,89.9337,-179.4506
+C00001=50.006,299.088,199.984,-92.8108,89.9315,177.6215
+C00002=43.772,64.108,237.677,-91.5541,89.9290,178.8750
+C00003=44.736,61.937,44.933,-90.6623,89.9289,179.7663
+C00004=44.078,63.418,176.763,-90.9478,89.9286,179.4817
+C00005=50.006,299.088,199.984,-92.8108,89.9315,177.6215
+C00006=49.985,299.057,565.999,-89.8831,89.9337,-179.4506
+//INST
+///DATE 2022/08/19 13:41
+///ATTR SC,RW,RJ
+////FRAME USER 3
+///GROUP1 RB1
+///LVARS 0,0,0,0,0,0,0,0
+NOP
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' R1 WGH Pounce Position
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' 
+*TOP
+'***********INITIALIZE***********
+' Set Clear of Module Bits
+CALL JOB:R1_CLEARMODULE ARGF236
+' Report Position
+CALL JOB:R1_REPORTPOS ARGF4
+'Tool Check
+CALL JOB:R1_TOOLCHECK ARGFI011 ARGF1000 ARGF1000
+'Request Enter
+CALL JOB:R1_REQUESTENTER
+'********************************
+' 
+'********PRE-STATUS_CHECK********
+'********************************
+' 
+'***********PRIME_MOVE***********
+'********************************
+IFTHENEXP IN#(1)=ON ANDEXP B006=1
+	' if weight test passed: start
+	'  current current position
+	'
+	' reset  R1 at WGH stand
+	 SET B006 0
+ELSE
+	' if weight test fails: move to
+	'  pounce position to continue
+	 MOVJ P[106] VJ=25.00
+	'
+	' reset  R1 at WGH stand
+	 SET B006 0
+ENDIF
+' 
+'*******POST-STATUS_CHECK********
+'********************************
+' 
+'****USER_DEFINED_PARAMETERS*****
+'********************************
+' 
+'********DATA_VALIDATION*********
+'********************************
+' 
+'*************SETUP**************
+'********************************
+' 
+'*************ACTION*************
+'********************************
+MOVJ C00000 VJ=50.00 PL=2
+MOVL C00001 V=500.0 PL=2
+' pick approach position
+MOVL C00002 V=500.0 PL=2
+'Set Shock Sensitivity
+SHCKSET RB1 SSL#(2)
+' pick position
+MOVL C00003 V=250.0 PL=0
+'Close Servo Grip
+CALL JOB:R1_CLOSESERVOGRIP
+' pick departure position
+MOVL C00004 V=250.0 PL=2 ACC=20 DEC=20
+MOVL C00005 V=500.0 PL=2 ACC=20 DEC=20
+MOVJ C00006 VJ=25.00 PL=2 ACC=20 DEC=20
+'Reset Shock Sensitivity
+SHCKRST RB1
+' clear of scale: move to pounce
+MOVJ P[106] VJ=25.00 ACC=20 DEC=20
+'*********HOUSE_KEEPING**********
+DOUT OT#(236) ON
+SET B004 1
+'********************************
+*OUT
+END

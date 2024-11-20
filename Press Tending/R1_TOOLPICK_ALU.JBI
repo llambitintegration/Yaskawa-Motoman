@@ -1,0 +1,86 @@
+/JOB
+//NAME R1_TOOLPICK_ALU
+//POS
+///NPOS 5,0,0,1,0,0
+///USER 10
+///TOOL 0
+///POSTYPE USER
+///RECTAN
+///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+C00000=-941.690,11.555,201.268,174.5630,-29.5476,10.8864
+C00001=-134.752,19.647,182.841,174.0085,-28.6431,9.1258
+C00002=-84.627,16.817,93.063,174.0063,-28.6431,9.1291
+///TOOL 4
+C00003=414.329,-1.212,94.861,-0.6451,0.7946,-2.0804
+C00004=-814.500,112.233,163.768,0.0222,0.0018,24.9631
+///TOOL 3
+///POSTYPE PULSE
+///PULSE
+P00104=65000,-33130,23012,-1977,-65085,90437
+//INST
+///DATE 2022/09/19 15:02
+///ATTR SC,RW,RJ
+////FRAME USER 10
+///GROUP1 RB1
+///LVARS 0,0,0,0,0,0,0,0
+NOP
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' R1_TOOLPick_Blk
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' 
+*TOP
+'***********INITIALIZE***********
+' Set Clear of Module Bits
+CALL JOB:R1_CLEARMODULE ARGF245
+' Report Position
+CALL JOB:R1_REPORTPOS ARGF10
+'Request Enter
+CALL JOB:R1_REQUESTENTER
+'Tool Check
+CALL JOB:R1_TOOLCHECK ARGFI011 ARGF4000 ARGF0
+'********************************
+' 
+'********PRE-STATUS_CHECK********
+'********************************
+' 
+'***********PRIME_MOVE***********
+'********************************
+WAIT SOUT#(1668)=OFF
+' Move to MST
+MOVJ P104 VJ=25.00 PL=2
+'*******POST-STATUS_CHECK********
+'********************************
+' 
+'****USER_DEFINED_PARAMETERS*****
+'********************************
+' 
+'********DATA_VALIDATION*********
+'********************************
+' 
+'*************SETUP**************
+'********************************
+' 
+'*************ACTION*************
+'********************************
+'Move to Alumina Rack
+MOVJ C00000 VJ=25.00 PL=2
+MOVJ C00001 VJ=25.00 PL=2
+'Set Shock Sensitivity
+SHCKSET RB1 SSL#(2)
+'Move to hopper
+MOVL C00002 V=100.0
+' lock dispenser to ATI
+CALL JOB:R1_TCATTACHTOOL
+'Set Tool Number
+CALL JOB:R1_DATAXFEROUT ARGF4000 ARGF44 ARGF45
+' move away from rack
+MOVL C00003 V=100.0
+MOVL C00004 V=1000.0 PL=2
+'Reset Shock Sensitivity
+SHCKRST RB1
+'*********HOUSE_KEEPING**********
+DOUT OT#(245) ON
+SET B004 1
+'********************************
+*OUT
+END

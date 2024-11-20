@@ -1,0 +1,49 @@
+/JOB
+//NAME R1_DATAXFEROUT
+//POS
+///NPOS 0,0,0,0,0,0
+//ARGINFO
+///ARGTYPE I,I,I,,,,,
+///COMMENT
+Output Integer
+Output ByteNum 0
+Output ByteNum 1
+
+
+
+
+
+//INST
+///DATE 2022/09/09 16:16
+///COMM Transfer data types into bytes
+///ATTR SC,RW
+///GROUP1 RB1
+///LVARS 5,5,5,0,0,0,0,0
+NOP
+SET B104 1
+'Int transfer to PLC Structure:
+'B1 + 256*B0
+'(InputInt,ByteLoc0,ByteLoc1)
+'Get input arguments
+GETARG LI000 IARG#(1)
+GETARG LI003 IARG#(2)
+GETARG LI004 IARG#(3)
+'________________________________
+SET LI001 LI000
+'________________________________
+'DIVIDE BY 256
+DIV LI000 256
+'SAVING IN BYTE2
+SET B[LI003] LI000
+'------------
+SET LI000 256
+MUL LI000 B[LI003]
+SUB LI001 LI000
+SET B[LI004] LI001
+'------------
+'SENDING DATA TO PLC
+SET B104 0
+'---------------
+'COMPLETE TRANSFER
+'--------------------
+END

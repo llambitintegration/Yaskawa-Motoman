@@ -1,0 +1,39 @@
+/JOB
+//NAME R1_HOUSEKEEPING
+//POS
+///NPOS 0,0,0,0,0,0
+//INST
+///DATE 2022/03/02 10:23
+///COMM Housekeeping
+///ATTR SC,RW
+///LVARS 1,0,0,0,0,0,0,0
+NOP
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' HOUSEKEEPING
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' 
+*TOP
+'***********INITIALIZE***********
+' action loop
+SET LB000 0
+'********************************
+' 
+'*********HOUSE KEEPING**********
+'Rob:Prog. Completed
+DOUT OT#(224) ON
+'PLC:Prog. Completed
+WAIT IN#(214)=ON
+'PLC:Prog. Execute
+WAIT IN#(209)=OFF
+'Rob:Next Prog.
+DOUT OT#(224) OFF
+'Robot is not Busy
+DOUT OT#(223) OFF
+'Robot is Ready
+DOUT OT#(222) ON
+'Reset Clear of Module
+CALL JOB:R1_CLEARMODULE ARGF999
+'********************************
+*OUT
+' return action loop command
+END

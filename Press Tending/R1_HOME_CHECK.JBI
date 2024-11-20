@@ -1,0 +1,45 @@
+/JOB
+//NAME R1_HOME_CHECK
+//POS
+///NPOS 0,0,0,0,0,0
+//INST
+///DATE 2022/02/07 14:37
+///COMM Home Check
+///ATTR SC,RW
+///LVARS 0,0,0,0,0,0,0,0
+NOP
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' HOME_CHECK
+'%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+' 
+*TOP
+'**********CHECK STATUS**********
+' check robot is in a safe
+'   starting position
+IFTHENEXP IN#(3921)=ON
+	 CALL JOB:R1_GOHOME
+ENDIF
+WHILEEXP IN#(3920)=OFF
+	'################################
+	 SETUALM 8000 "MOVE ROBOT TO HOME" 1 SMODE=0
+	'ROBOT NOT AT A SAFE STARTING
+	'POSITION
+	'
+	'Manually move the robot home
+	'needs to be in safe starting
+	'cube.  IN#(3921)=ON
+	'
+	'push start to continue
+	 JUMP *TOP
+	'################################
+ENDWHILE
+DOUT OG#(30) 255
+DOUT OG#(31) 255
+DOUT OT#(241) OFF
+CALL JOB:R1_REPORTPOS ARGF9
+'********************************
+' 
+'*************ACTION*************
+'********************************
+*OUT
+END
